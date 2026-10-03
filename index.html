@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agenda Personale Sincronizzata</title>
     <!-- Tailwind CSS per la grafica -->
-    <script src="https://tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome per le icone -->
-    <link rel="stylesheet" href="https://cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter -->
-    <link href="https://googleapis.com" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -109,6 +109,7 @@
             </div>
         </div>
     </header>
+
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 no-print">
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center space-x-2 w-full md:w-auto justify-between md:justify-start">
@@ -133,6 +134,7 @@
                 </button>
             </div>
         </div>
+
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="grid grid-cols-8 bg-slate-50 border-b border-slate-200 text-center font-bold text-xs uppercase tracking-wider text-slate-500 py-3">
                 <div class="text-brand-600">Sett.</div>
@@ -148,6 +150,7 @@
             </div>
         </div>
     </main>
+
     <div id="eventModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
@@ -184,3 +187,554 @@
                         <i class="fa-solid fa-trash mr-1"></i> Elimina
                     </button>
                     <div class="flex space-x-2 ml-auto">
+                        <button type="button" onclick="closeEventModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-sm transition">
+                            Annulla
+                        </button>
+                        <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm shadow-md transition">
+                            Salva
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="printModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-800">Opzioni di Stampa</h3>
+                <button onclick="closePrintModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-5">
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+                    <h4 class="font-bold text-slate-800 text-sm flex items-center mb-1">
+                        <i class="fa-solid fa-calendar-days text-brand-600 mr-2"></i>
+                        Stampa Tutto il Mese
+                    </h4>
+                    <p class="text-xs text-slate-500 mb-3">Stampa l'intero mese con tutti gli impegni ordinati.</p>
+                    <button onclick="triggerPrint('month')" class="w-full py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-bold transition">
+                        Stampa Mese Corrente
+                    </button>
+                </div>
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+                    <h4 class="font-bold text-slate-800 text-sm flex items-center mb-1">
+                        <i class="fa-solid fa-calendar-week text-brand-600 mr-2"></i>
+                        Stampa Singola Settimana
+                    </h4>
+                    <div class="space-y-3 mt-2">
+                        <select id="printWeekSelect" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:ring-brand-500">
+                        </select>
+                        <button onclick="triggerPrint('week')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition">
+                            Stampa Settimana Selezionata
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-5 text-right">
+                <button onclick="closePrintModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs transition">
+                    Chiudi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="printView" class="print-only p-4">
+        <div class="print-header">
+            <h1 id="printTitle" class="text-2xl font-bold uppercase tracking-wide">Agenda Personale</h1>
+            <p id="printSubtitle" class="text-sm text-slate-600 font-semibold"></p>
+        </div>
+        <div class="grid grid-cols-7 border-b-2 border-slate-800 text-center font-bold text-xs uppercase mb-1 py-1 bg-slate-100">
+            <div>Lunedì</div>
+            <div>Martedì</div>
+            <div>Mercoledì</div>
+            <div>Giovedì</div>
+            <div>Venerdì</div>
+            <div>Sabato</div>
+            <div>Domenica</div>
+        </div>
+        <div id="printGrid" class="print-grid">
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'agenda-personale-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "demo-api-key",
+            authDomain: "demo-app.firebaseapp.com",
+            projectId: "demo-app",
+            storageBucket: "demo-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:demo"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+        let events = {};
+        let nickPresence = {};
+        let currentYear, currentMonth;
+        let filterNickOnly = false;
+
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                await signInAnonymously(auth);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                subscribeToData();
+            }
+        });
+
+        function subscribeToData() {
+            if (!currentUser) return;
+
+            const eventsCol = collection(db, 'artifacts', appId, 'public', 'data', 'events');
+            onSnapshot(eventsCol, (snapshot) => {
+                events = {};
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const dateStr = data.date;
+                    if (!events[dateStr]) events[dateStr] = [];
+                    events[dateStr].push({ id: docSnap.id, ...data });
+                });
+                renderCalendar();
+            });
+
+            const nickCol = collection(db, 'artifacts', appId, 'public', 'data', 'nickPresence');
+            onSnapshot(nickCol, (snapshot) => {
+                nickPresence = {};
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (data && data.present) nickPresence[docSnap.id] = true;
+                });
+                renderCalendar();
+            });
+        }
+
+        window.toggleNickPresenceForDate = async function(dateStr) {
+            if (!currentUser || !dateStr) return;
+            const newStatus = !nickPresence[dateStr];
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'nickPresence', dateStr);
+                if (newStatus) {
+                    await setDoc(docRef, { date: dateStr, present: true, updatedAt: new Date().toISOString() });
+                } else {
+                    await deleteDoc(docRef);
+                }
+            } catch (err) {
+                console.error("Errore aggiornamento presenza:", err);
+            }
+        };
+
+        function getISOWeekNumber(d) {
+            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            const dayNum = date.getUTCDay() || 7;
+            date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+            return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+        }
+
+        window.renderCalendar = function() {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+            const date = new Date(currentYear, currentMonth, 1);
+            const monthName = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+            document.getElementById('currentMonthYear').textContent = monthName;
+
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+
+            let startingDay = firstDay.getDay() - 1;
+            if (startingDay === -1) startingDay = 6;
+            const totalDays = lastDay.getDate();
+
+            const firstWeek = getISOWeekNumber(firstDay);
+            const lastWeek = getISOWeekNumber(lastDay);
+            document.getElementById('monthWeekRange').textContent = `Settimane \({firstWeek} -\){lastWeek}`;
+
+            let dayCounter = 1;
+            let prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+            const totalCells = Math.ceil((startingDay + totalDays) / 7) * 7;
+
+            for (let i = 0; i < totalCells; i++) {
+                const cellIndex = i % 7;
+                
+                if (cellIndex === 0) {
+                    const rowWeekDate = new Date(currentYear, currentMonth, dayCounter <= totalDays && i >= startingDay ? dayCounter : 1);
+                    const weekNum = getISOWeekNumber(rowWeekDate);
+                    const weekCell = document.createElement('div');
+                    weekCell.className = "bg-slate-100 flex flex-col items-center justify-center p-2 border-r border-slate-200 font-bold text-xs text-brand-600";
+                    weekCell.innerHTML = `<span class="text-[10px] text-slate-400 uppercase">Sett.</span><span class="text-sm font-extrabold">${weekNum}</span>`;
+                    grid.appendChild(weekCell);
+                }
+
+                const dayCell = document.createElement('div');
+                dayCell.className = "min-h-[120px] bg-white p-2 flex flex-col justify-between transition relative group border-b border-r border-slate-100";
+                
+                if (i < startingDay) {
+                    const prevDay = prevMonthLastDay - (startingDay - 1 - i);
+                    dayCell.classList.add('bg-slate-50/50', 'text-slate-300');
+                    dayCell.innerHTML = `<span class="text-xs font-semibold p-1">${prevDay}</span>`;
+                } else if (dayCounter <= totalDays) {
+                    const d = dayCounter;
+                    const monthStr = String(currentMonth + 1).padStart(2, '0');
+                    const dayStr = String(d).padStart(2, '0');
+                    const cellDateStr = `\({currentYear}-\){monthStr}-${dayStr}`;
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const isToday = cellDateStr === todayStr;
+                    const isNickPresent = !!nickPresence[cellDateStr];
+
+                    if (filterNickOnly && !isNickPresent) {
+                        dayCell.classList.add('bg-slate-50/30', 'opacity-40');
+                    } else if (isNickPresent) {
+                        dayCell.classList.add('bg-indigo-50/40');
+                    }
+
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = "flex justify-between items-center mb-1";
+                    
+                    const dayHeaderLeft = document.createElement('div');
+                    dayHeaderLeft.className = "flex items-center space-x-1.5";
+
+                    const dayNumSpan = document.createElement('span');
+                    dayNumSpan.className = `text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-brand-600 text-white' : 'text-slate-700'}`;
+                    dayNumSpan.textContent = d;
+                    dayHeaderLeft.appendChild(dayNumSpan);
+
+                    const nickBadge = document.createElement('button');
+                    nickBadge.className = `text-[10px] font-bold px-1.5 py-0.5 rounded-md transition ${isNickPresent ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`;
+                    nickBadge.title = "Attiva/Disattiva presenza di Nick";
+                    nickBadge.innerHTML = isNickPresent ? '<i class="fa-solid fa-child"></i> Nick' : '+ Nick';
+                    nickBadge.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleNickPresenceForDate(cellDateStr);
+                    };
+                    dayHeaderLeft.appendChild(nickBadge);
+
+                    const addBtn = document.createElement('button');
+                    addBtn.className = "opacity-0 group-hover:opacity-100 text-slate-400 hover:text-brand-600 text-xs p-1";
+                    addBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
+                    addBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        openAddModal(cellDateStr);
+                    };
+
+                    dayHeader.appendChild(dayHeaderLeft);
+                    dayHeader.appendChild(addBtn);
+                    dayCell.appendChild(dayHeader);
+
+                    const eventsContainer = document.createElement('div');
+                    eventsContainer.className = "space-y-1 flex-1 overflow-y-auto max-h-[90px]";
+                    
+                    if (!filterNickOnly || isNickPresent) {
+                        const dayEvents = (events[cellDateStr] || []).slice().sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+                        
+                        dayEvents.forEach(evt => {
+                            const evtBadge = document.createElement('div');
+                            evtBadge.className = `text-[11px] p-1.5 rounded-lg border flex items-center justify-between cursor-pointer bg-slate-50 border-slate-200 text-slate-800 ${evt.completed ? 'line-through opacity-50' : ''}`;
+                            evtBadge.onclick = (e) => {
+                                e.stopPropagation();
+                                openEditModal(evt);
+                            };
+
+                            const evtText = document.createElement('span');
+                            evtText.className = "truncate flex-1 pr-1 font-medium";
+                            evtText.textContent = `\({evt.time ? evt.time + ' ' : ''}\){evt.title}`;
+
+                            const checkBtn = document.createElement('button');
+                            checkBtn.className = `text-[10px] p-0.5 rounded ${evt.completed ? 'text-emerald-600' : 'text-slate-300 hover:text-slate-500'}`;
+                            checkBtn.innerHTML = `<i class="fa-solid ${evt.completed ? 'fa-circle-check' : 'fa-circle'}"></i>`;
+                            checkBtn.onclick = (e) => {
+                                e.stopPropagation();
+                                toggleEventCompleted(evt);
+                            };
+
+                            evtBadge.appendChild(evtText);
+                            evtBadge.appendChild(checkBtn);
+                            eventsContainer.appendChild(evtBadge);
+                        });
+                    }
+
+                    dayCell.appendChild(eventsContainer);
+                    dayCounter++;
+                } else {
+                    const nextDay = dayCounter - totalDays;
+                    dayCell.classList.add('bg-slate-50/50', 'text-slate-300');
+                    dayCell.innerHTML = `<span class="text-xs font-semibold p-1">${nextDay}</span>`;
+                    dayCounter++;
+                }
+                grid.appendChild(dayCell);
+            }
+        };
+
+        window.openAddModal = function(dateStr = '') {
+            document.getElementById('modalTitle').textContent = 'Nuovo Impegno';
+            document.getElementById('eventId').value = '';
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventTime').value = '';
+            document.getElementById('btnDeleteEvent').classList.add('hidden');
+            
+            const targetDate = dateStr || new Date().toISOString().split('T')[0];
+            document.getElementById('eventDate').value = targetDate;
+            document.getElementById('eventDayNick').checked = !!nickPresence[targetDate];
+            document.getElementById('eventModal').classList.remove('hidden');
+        };
+
+        window.openEditModal = function(evt) {
+            document.getElementById('modalTitle').textContent = 'Modifica Impegno';
+            document.getElementById('eventId').value = evt.id;
+            document.getElementById('eventDate').value = evt.date;
+            document.getElementById('eventTitle').value = evt.title;
+            document.getElementById('eventTime').value = evt.time || '';
+            document.getElementById('eventDayNick').checked = !!nickPresence[evt.date];
+            document.getElementById('btnDeleteEvent').classList.remove('hidden');
+            document.getElementById('eventModal').classList.remove('hidden');
+        };
+
+        window.closeEventModal = function() {
+            document.getElementById('eventModal').classList.add('hidden');
+        };
+
+        window.saveEvent = async function(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+            const id = document.getElementById('eventId').value || `evt_${Date.now()}`;
+            const date = document.getElementById('eventDate').value;
+            const title = document.getElementById('eventTitle').value.trim();
+            const time = document.getElementById('eventTime').value;
+            const isNickDay = document.getElementById('eventDayNick').checked;
+
+            if (!title || !date) return;
+
+            const evtData = { date, title, time, completed: false, updatedAt: new Date().toISOString() };
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'events', id);
+                await setDoc(docRef, evtData, { merge: true });
+
+                const nickDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'nickPresence', date);
+                if (isNickDay) {
+                    await setDoc(nickDocRef, { date, present: true, updatedAt: new Date().toISOString() });
+                } else {
+                    await deleteDoc(nickDocRef);
+                }
+
+                closeEventModal();
+            } catch (err) {
+                console.error("Errore salvataggio:", err);
+            }
+        };
+
+        window.toggleEventCompleted = async function(evt) {
+            if (!currentUser) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'events', evt.id);
+                await setDoc(docRef, { completed: !evt.completed }, { merge: true });
+            } catch (err) {
+                console.error("Errore modifica stato:", err);
+            }
+        };
+
+        window.deleteCurrentEvent = async function() {
+            const id = document.getElementById('eventId').value;
+            if (!id || !currentUser) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'events', id);
+                await deleteDoc(docRef);
+                closeEventModal();
+            } catch (err) {
+                console.error("Errore eliminazione:", err);
+            }
+        };
+
+        window.toggleNickFilter = function() {
+            filterNickOnly = !filterNickOnly;
+            const btn = document.getElementById('btnNickToggle');
+            const label = document.getElementById('nickToggleLabel');
+            if (filterNickOnly) {
+                btn.className = "px-3 py-1.5 rounded-lg text-sm font-semibold transition flex items-center space-x-2 bg-indigo-600 text-white shadow-sm";
+                label.textContent = "Solo giorni con Nick";
+            } else {
+                btn.className = "px-3 py-1.5 rounded-lg text-sm font-semibold transition flex items-center space-x-2 bg-slate-100 text-slate-700 hover:bg-slate-200";
+                label.textContent = "Tutti i giorni";
+            }
+            renderCalendar();
+        };
+
+        window.changeMonth = function(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        };
+
+        window.goToToday = function() {
+            const today = new Date();
+            currentYear = today.getFullYear();
+            currentMonth = today.getMonth();
+            renderCalendar();
+        };
+
+        window.openPrintModal = function() {
+            const select = document.getElementById('printWeekSelect');
+            select.innerHTML = '';
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+
+            let curr = new Date(firstDay);
+            let dayNum = curr.getDay() - 1;
+            if (dayNum === -1) dayNum = 6;
+            curr.setDate(curr.getDate() - dayNum);
+
+            let weekCount = 1;
+            while (curr <= lastDay || weekCount === 1) {
+                const weekNum = getISOWeekNumber(curr);
+                const endDate = new Date(curr);
+                endDate.setDate(endDate.getDate() + 6);
+                const option = document.createElement('option');
+                option.value = curr.toISOString().split('T')[0];
+                option.textContent = `Settimana \({weekNum} (\){curr.getDate()}/\({curr.getMonth()+1} -\){endDate.getDate()}/${endDate.getMonth()+1})`;
+                select.appendChild(option);
+                curr.setDate(curr.getDate() + 7);
+                weekCount++;
+                if (curr > lastDay && curr.getDay() === 1) break;
+            }
+            document.getElementById('printModal').classList.remove('hidden');
+        };
+
+        window.closePrintModal = function() {
+            document.getElementById('printModal').classList.add('hidden');
+        };
+
+        window.triggerPrint = function(mode) {
+            const printGrid = document.getElementById('printGrid');
+            printGrid.innerHTML = '';
+            const monthName = new Date(currentYear, currentMonth, 1).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+
+            if (mode === 'month') {
+                document.getElementById('printTitle').textContent = `Mese di ${monthName}`;
+                document.getElementById('printSubtitle').textContent = `Report Impegni Mensile`;
+
+                const firstDay = new Date(currentYear, currentMonth, 1);
+                const lastDay = new Date(currentYear, currentMonth + 1, 0);
+                
+                let startingDay = firstDay.getDay() - 1;
+                if (startingDay === -1) startingDay = 6;
+                const totalDays = lastDay.getDate();
+                const totalCells = Math.ceil((startingDay + totalDays) / 7) * 7;
+                let dayCounter = 1;
+
+                for (let i = 0; i < totalCells; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = "print-day-cell flex flex-col justify-start";
+
+                    if (i < startingDay || dayCounter > totalDays) {
+                        cell.style.background = "#f8fafc";
+                        cell.style.opacity = "0.4";
+                    } else {
+                        const monthStr = String(currentMonth + 1).padStart(2, '0');
+                        const dayStr = String(dayCounter).padStart(2, '0');
+                        const dateStr = `\({currentYear}-\){monthStr}-${dayStr}`;
+                        const dateObj = new Date(currentYear, currentMonth, dayCounter);
+                        const weekNum = getISOWeekNumber(dateObj);
+                        const isNick = !!nickPresence[dateStr];
+
+                        cell.innerHTML = `<div class="font-bold border-b pb-1 text-xs mb-1 flex justify-between items-center">
+                            <span>\({dayCounter}\){isNick ? ' *' : ''}</span>
+                            <span class="text-[9px] text-slate-400">S.${weekNum}</span>
+                        </div>`;
+
+                        const dayEvents = (events[dateStr] || []).slice().sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+                        const list = document.createElement('div');
+                        list.className = "space-y-1 text-[10px]";
+
+                        dayEvents.forEach(evt => {
+                            const item = document.createElement('div');
+                            item.className = "leading-tight border-b border-slate-100 pb-0.5";
+                            item.innerHTML = `<strong>\({evt.time ? evt.time + ' ' : ''}</strong>\){evt.title}`;
+                            list.appendChild(item);
+                        });
+
+                        cell.appendChild(list);
+                        dayCounter++;
+                    }
+                    printGrid.appendChild(cell);
+                }
+            } else if (mode === 'week') {
+                const startDateStr = document.getElementById('printWeekSelect').value;
+                const startDate = new Date(startDateStr);
+                const weekNum = getISOWeekNumber(startDate);
+                const endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 6);
+
+                document.getElementById('printTitle').textContent = `Settimana \({weekNum} (\){monthName})`;
+                document.getElementById('printSubtitle').textContent = `Dal \({startDate.getDate()}/\){startDate.getMonth()+1}/\({startDate.getFullYear()} al\){endDate.getDate()}/\({endDate.getMonth()+1}/\){endDate.getFullYear()}`;
+
+                let curr = new Date(startDate);
+                for (let i = 0; i < 7; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = "print-day-cell flex flex-col justify-start min-h-[300px] border-2 border-slate-300";
+                    
+                    const monthStr = String(curr.getMonth() + 1).padStart(2, '0');
+                    const dayStr = String(curr.getDate()).padStart(2, '0');
+                    const dateStr = `\({curr.getFullYear()}-\){monthStr}-${dayStr}`;
+                    const isNick = !!nickPresence[dateStr];
+
+                    cell.innerHTML = `<div class="font-bold border-b-2 border-slate-800 pb-1 text-sm mb-2 text-center bg-slate-50 p-1">
+                        \({curr.getDate()}\){isNick ? ' *' : ''} ${curr.toLocaleDateString('it-IT', { month: 'short' })}
+                    </div>`;
+
+                    const dayEvents = (events[dateStr] || []).slice().sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+                    const list = document.createElement('div');
+                    list.className = "space-y-2 text-xs p-1";
+
+                    dayEvents.forEach(evt => {
+                        const item = document.createElement('div');
+                        item.className = "p-1.5 bg-slate-50 border border-slate-200 rounded";
+                        item.innerHTML = `<div class="font-bold text-brand-700">\({evt.time || 'Tutto il giorno'}</div><div>\){evt.title}</div>`;
+                        list.appendChild(item);
+                    });
+
+                    cell.appendChild(list);
+                    printGrid.appendChild(cell);
+                    curr.setDate(curr.getDate() + 1);
+                }
+            }
+            
+            closePrintModal();
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        };
+
+        window.onload = async function() {
+            const now = new Date();
+            currentYear = now.getFullYear();
+            currentMonth = now.getMonth();
+            await initAuth();
+            renderCalendar();
+        };
+    </script>
+</body>
+</html>
